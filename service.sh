@@ -18,10 +18,10 @@ RUNTIME_D=/mnt/runtime/default
 BINDPOINT_R=${RUNTIME_R}/emulated/${PROFILE}/Cloud
 BINDPOINT_W=${RUNTIME_W}/emulated/${PROFILE}/Cloud
 BINDPOINT_D=${RUNTIME_D}/emulated/${PROFILE}/Cloud
-SD_BINDPOINT=${BINDPOINT_D}
+BINDPOINT_P=/mnt/pass_through/${PROFILE}/emulated/${PROFILE}/Cloud
+SD_BINDPOINT=${BINDPOINT_P}
 DISABLE=0
 NETCHK=1
-NETCHK_ADDR=$(ip route list match 0 table all scope global | cut -F3)
 
 # DEFAULT RCLONE PARAMETERS
 CONFIGFILE=${MODDIR}/.config/rclone/rclone.conf
@@ -65,8 +65,18 @@ fi
 if [[ ! -d ${MODDIR}/.config/rclone ]]; then
     mkdir -p ${MODDIR}/.config/rclone
 fi
+gethostip() {
+    ip=$(ip route list match 0 table all scope global | cut -F3)
+    if [ -z "$ip" ]; then
+        return 1
+    fi
+}
 
-custom_params () {
+while ! (gethostip); do
+    sleep 3
+done
+NETCHK_ADDR=$(gethostip)
+custom_params() {
     if [[ ${remote} = global ]]; then
         PARAMS="DISABLE LOGFILE LOGLEVEL CACHEMODE CHUNKSIZE CHUNKTOTAL CACHEWORKERS CACHEINFOAGE DIRCACHETIME ATTRTIMEOUT BUFFERSIZE READAHEAD M_UID M_GID DIRPERMS FILEPERMS READONLY BINDSD ADD_PARAMS REPLACE_PARAMS NETCHK NETCHK_IF NETCHK_ADDR HTTP FTP HTTP_ADDR FTP_ADDR SFTP SFTP_ADDR SFTP_USER SFTP_PASS PROFILE ISOLATE"
     else
@@ -80,15 +90,15 @@ custom_params () {
             # FIX: Unnecessary and very inefficient double loop
             for PARAM in ${PARAMS[@]}; do
                 while read -r VAR; do
-                    if [[ "$(echo "${VAR}" |grep "$PARAM=")" ]]; then
+                    if [[ "$(echo "${VAR}" | grep "$PARAM=")" ]]; then
                         echo "Importing ${VAR}"
-                        VALUE="$(echo ${VAR} |cut -d '=' -f2)"
+                        VALUE="$(echo ${VAR} | cut -d '=' -f2)"
                         VALUE=\"${VALUE}\"
                         # Unnecessary echo in a subshell execution below? Why not just:
                         # eval "${PARAM}""=""${VALUE}"
                         eval $(echo "${PARAM}""=""${VALUE}")
                     fi
-                done < ${USER_CONFDIR}/.${remote}.param
+                done <${USER_CONFDIR}/.${remote}.param
             done
         else
             echo ".${remote}.param contains bad syntax"
@@ -96,7 +106,7 @@ custom_params () {
     fi
 }
 
-global_params () {
+global_params() {
     remote=global
     custom_params
     unset remote
@@ -112,26 +122,28 @@ net_chk() {
     ping ${NETCHK_IF} -c 5 ${NETCHK_ADDR}
 }
 
-sd_unbind () {
+sd_unbind() {
     if [[ -z ${SDBINDPOINT} ]]; then
         UNBINDPOINT=${BINDPOINT_D}/${remote}
-        su -M -c umount -lf ${UNBINDPOINT} >> /dev/null 2>&1
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
         UNBINDPOINT=${BINDPOINT_R}/${remote}
-        su -M -c umount -lf ${UNBINDPOINT} >> /dev/null 2>&1
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
         UNBINDPOINT=${BINDPOINT_W}/${remote}
-        su -M -c umount -lf ${UNBINDPOINT} >> /dev/null 2>&1
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
+        UNBINDPOINT=${SD_BINDPOINT}/${remote}
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
     else
         USER_BINDPOINT=${SDBINDPOINT}
         UNBINDPOINT=${RUNTIME_D}/emulated/${PROFILE}/${USER_BINDPOINT}
-        su -M -c umount -lf ${UNBINDPOINT} >> /dev/null 2>&1
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
         UNBINDPOINT=${RUNTIME_R}/emulated/${PROFILE}/${USER_BINDPOINT}
-        su -M -c umount -lf ${UNBINDPOINT} >> /dev/null 2>&1
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
         UNBINDPOINT=${RUNTIME_W}/emulated/${PROFILE}/${USER_BINDPOINT}
-        su -M -c umount -lf ${UNBINDPOINT} >> /dev/null 2>&1
+        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
     fi
 }
 
-sd_binder () {
+sd_binder() {
     if [[ -d ${RUNTIME_D} ]] && [[ ${BINDSD} = 1 ]]; then
         if [[ -z ${SDBINDPOINT} ]]; then
             mkdir -p ${DATA_MEDIA}/${PROFILE}/Cloud/${remote}
@@ -139,53 +151,58 @@ sd_binder () {
 
             BINDPOINT=${BINDPOINT_D}/${remote}
 
-            su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >> /dev/null 2>&1
+            su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
 
             BINDPOINT=${BINDPOINT_R}/${remote}
 
-            if ! mount |grep -q ${BINDPOINT}; then
-                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >> /dev/null 2>&1
+            if ! mount | grep -q ${BINDPOINT}; then
+                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
             fi
 
             BINDPOINT=${BINDPOINT_W}/${remote}
 
-            if ! mount |grep -q ${BINDPOINT}; then
-                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >> /dev/null 2>&1
+            if ! mount | grep -q ${BINDPOINT}; then
+                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
             fi
 
-            echo "[$remote] available at: -> [/sdcard/Cloud/${remote}]"
+            BINDPOINT=$SD_BINDPOINT/${remote}
+
+            if ! mount | grep -q ${BINDPOINT}; then
+                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
+            fi
+
+            echo "[$remote] available at: -> [/sdcard/Cloud/${remote}] BINDPOINT=$BINDPOINT"
         else
-            mkdir ${DATA_MEDIA}/${PROFILE}/${SDBINDPOINT} >> /dev/null 2>&1
+            mkdir ${DATA_MEDIA}/${PROFILE}/${SDBINDPOINT} >>/dev/null 2>&1
             chown media_rw:media_rw ${DATA_MEDIA}/${PROFILE}/${SDBINDPOINT}
 
             USER_BINDPOINT=${SDBINDPOINT}
             BINDPOINT=${RUNTIME_D}/emulated/${PROFILE}/${USER_BINDPOINT}
 
-            su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >> /dev/null 2>&1
+            su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
 
             BINDPOINT=${RUNTIME_R}/emulated/${PROFILE}/${USER_BINDPOINT}
 
-            if ! mount |grep -q ${BINDPOINT}; then
-                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >> /dev/null 2>&1
+            if ! mount | grep -q ${BINDPOINT}; then
+                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
             fi
 
             BINDPOINT=${RUNTIME_W}/emulated/${PROFILE}/${USER_BINDPOINT}
 
-            if ! mount |grep -q ${BINDPOINT}; then
-                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >> /dev/null 2>&1
+            if ! mount | grep -q ${BINDPOINT}; then
+                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
             fi
-
             echo "[$remote] available at: -> [/storage/emulated/${PROFILE}/${SDBINDPOINT}]"
             unset BINDPOINT
         fi
     fi
 }
 
-syncd_service () {
+syncd_service() {
     if [[ ! -z ${SDSYNCDIRS} ]]; then
         export PIDFILE=${MODDIR}/.tmp/${remote}-syncd.pids
-        kill -9 $(cat ${PIDFILE}) >> /dev/null 2>&1
-        rm ${PIDFILE} >> /dev/null 2>&1
+        kill -9 $(cat ${PIDFILE}) >>/dev/null 2>&1
+        rm ${PIDFILE} >>/dev/null 2>&1
 
         if [[ ! -d ${MODDIR}/.tmp ]]; then
             mkdir -p ${MODDIR}/.tmp
@@ -203,7 +220,7 @@ syncd_service () {
         IFS=$':'
         for SYNCDIR in ${SDSYNCDIRS[@]}; do
             export SYNCDIR
-            ${MODDIR}/syncd.sh >> /dev/null 2>&1 &
+            ${MODDIR}/syncd.sh >>/dev/null 2>&1 &
         done
     fi
 
@@ -215,7 +232,7 @@ syncd_service () {
     SYNC_CHARGE=0
 }
 
-reset_params () {
+reset_params() {
     unset IFS
     unset SDBINDPOINT
     unset BINDSD
@@ -251,7 +268,7 @@ reset_params () {
     SYNC_CHARGE=0
 }
 
-rclone_mount () {
+rclone_mount() {
     if [[ ${READONLY} = 1 ]]; then
         READONLY=" --read-only "
     else
@@ -280,7 +297,7 @@ rclone_mount () {
 
     echo "[${remote}] available at: -> [${CLOUDROOTMOUNTPOINT}/${remote}]"
     mkdir -p ${CLOUDROOTMOUNTPOINT}/${remote}
-    su -M -p -c nice -n 19 ionice -c 2 -n 7 ${MODDIR}/rclone mount "${remote}:${SUBPATH}" ${CLOUDROOTMOUNTPOINT}/${remote} --config ${CONFIGFILE} ${RCLONE_PARAMS} --daemon >> /dev/null 2>&1 &
+    su -M -p -c nice -n 19 ionice -c 2 -n 7 ${MODDIR}/rclone mount "${remote}:${SUBPATH}" ${CLOUDROOTMOUNTPOINT}/${remote} --config ${CONFIGFILE} ${RCLONE_PARAMS} --daemon >>/dev/null 2>&1 &
 }
 
 COUNT=0
@@ -292,8 +309,8 @@ if [[ ${INTERACTIVE} = 0 ]]; then
     done
 fi
 
-DECRYPT_CHK () {
-    su -M -c ls sdcard |grep -q -w "Android"
+DECRYPT_CHK() {
+    su -M -c ls sdcard | grep -q -w "Android"
 }
 
 if [[ ${COUNT} -eq 240 ]] || [[ ! -d /sdcard/Android ]]; then
@@ -371,53 +388,53 @@ if [[ ${NETCHK} = 1 ]]; then
     until net_chk || [[ ${COUNT} = 60 ]]; do
         sleep 5
         ((++COUNT))
-    done >> /dev/null 2>&1
+    done >>/dev/null 2>&1
 fi
 
 echo "Default CACHEMODE ${CACHEMODE}"
 sleep 5
 
-LD_LIBRARY_PATH=${MODDIR} ${MODDIR}/rclone listremotes --config ${CONFIGFILE}|cut -f1 -d: |
-while read remote; do
-    echo
-    list_remote=${remote}
-    CLOUDROOTMOUNTPOINT=/mnt/cloud
-    PROFILE=0
-    DISABLE=0
-    READONLY=0
-    global_params >> /dev/null 2>&1
-    remote=${list_remote}
-    custom_params
-    if [[ ${ISOLATE} = 1 ]] && [[ ${PROFILE} -gt 0 ]] && [[ ${BINDSD} = 1 ]]; then
-        CLOUDROOTMOUNTPOINT=/data/media/${PROFILE}/.cloud
-    fi
+LD_LIBRARY_PATH=${MODDIR} ${MODDIR}/rclone listremotes --config ${CONFIGFILE} | cut -f1 -d: |
+    while read remote; do
+        echo
+        list_remote=${remote}
+        CLOUDROOTMOUNTPOINT=/mnt/cloud
+        PROFILE=0
+        DISABLE=0
+        READONLY=0
+        global_params >>/dev/null 2>&1
+        remote=${list_remote}
+        custom_params
+        if [[ ${ISOLATE} = 1 ]] && [[ ${PROFILE} -gt 0 ]] && [[ ${BINDSD} = 1 ]]; then
+            CLOUDROOTMOUNTPOINT=/data/media/${PROFILE}/.cloud
+        fi
 
-    if [[ ${DISABLE} = 1 ]] || [[ -e ${USER_CONFDIR}/.${remote}.disable ]]; then
-        echo "${remote} disabled by user"
-        continue
-    fi
-    sd_unbind
-    rclone_mount
-    sd_binder
-    syncd_service
-    reset_params
-done
+        if [[ ${DISABLE} = 1 ]] || [[ -e ${USER_CONFDIR}/.${remote}.disable ]]; then
+            echo "${remote} disabled by user"
+            continue
+        fi
+        sd_unbind
+        rclone_mount
+        sd_binder
+        syncd_service
+        reset_params
+    done
 echo
 
 if [[ ${HTTP} = 1 ]]; then
-    if $(${MODDIR}/rclone serve http ${CLOUDROOTMOUNTPOINT} --addr ${HTTP_ADDR} --no-checksum --no-modtime --read-only >> /dev/null 2>&1 &); then
+    if $(${MODDIR}/rclone serve http ${CLOUDROOTMOUNTPOINT} --addr ${HTTP_ADDR} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
         echo "HTTP Server: http://${HTTP_ADDR}"
     fi
 fi
 
 if [[ ${FTP} = 1 ]]; then
-    if $(${MODDIR}/rclone serve ftp ${CLOUDROOTMOUNTPOINT} --addr ${FTP_ADDR} --no-checksum --no-modtime --read-only >> /dev/null 2>&1 &); then
+    if $(${MODDIR}/rclone serve ftp ${CLOUDROOTMOUNTPOINT} --addr ${FTP_ADDR} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
         echo "FTP Server: ftp://${FTP_ADDR}"
     fi
 fi
 
 if [[ ${SFTP} = 1 ]] && [[ ! -z ${SFTP_USER} ]] && [[ ! -z ${SFTP_PASS} ]]; then
-    if $(${MODDIR}/rclone serve sftp ${CLOUDROOTMOUNTPOINT} --addr ${SFTP_ADDR} --user ${SFTP_USER} --pass ${SFTP_PASS} --no-checksum --no-modtime --read-only >> /dev/null 2>&1 &); then
+    if $(${MODDIR}/rclone serve sftp ${CLOUDROOTMOUNTPOINT} --addr ${SFTP_ADDR} --user ${SFTP_USER} --pass ${SFTP_PASS} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
         echo "SFTP Server: sftp://${SFTP_ADDR}"
     fi
 fi
