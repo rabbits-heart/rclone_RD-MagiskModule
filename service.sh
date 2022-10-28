@@ -1,5 +1,5 @@
 #!/system/bin/sh
-
+MODDIR=${0%/*}
 # Do NOT assume where your module will be located.
 # ALWAYS use $MODDIR if you need to know where this script
 # and module is placed.
@@ -21,7 +21,7 @@ BINDPOINT_D=${RUNTIME_D}/emulated/${PROFILE}/Cloud
 SD_BINDPOINT=${BINDPOINT_D}
 DISABLE=0
 NETCHK=1
-NETCHK_ADDR=google.com
+NETCHK_ADDR=$(ip route list match 0 table all scope global | cut -F3)
 
 # DEFAULT RCLONE PARAMETERS
 CONFIGFILE=${MODDIR}/.config/rclone/rclone.conf

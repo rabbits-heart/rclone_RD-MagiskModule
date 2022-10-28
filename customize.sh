@@ -1,100 +1,66 @@
-##########################################################################################
-#
-# MMT Extended Config Script
-#
-##########################################################################################
-
-##########################################################################################
-# Config Flags
-##########################################################################################
-
-# Uncomment and change 'MINAPI' and 'MAXAPI' to the minimum and maximum android version for your mod
-# Uncomment DYNLIB if you want libs installed to vendor for oreo+ and system for anything older
-# Uncomment DEBUG if you want full debug logs (saved to /sdcard)
-#MINAPI=21
-#MAXAPI=25
-#DYNLIB=true
-
-##########################################################################################
-# Replace list
-##########################################################################################
-
-# List all directories you want to directly replace in the system
-# Check the documentations for more info why you would need this
-
-# Construct your list in the following format
-# This is an example
-REPLACE_EXAMPLE="
-/system/app/Youtube
-/system/priv-app/SystemUI
-/system/priv-app/Settings
-/system/framework
-"
-
-# Construct your own list here
-REPLACE="
-"
-
-##########################################################################################
-# Permissions
-##########################################################################################
-
-set_permissions() {
-    set_perm $MODPATH/rclone 0 0 0755
-    set_perm $MODPATH/system/bin/fusermount 0 0 0755
-    set_perm $MODPATH/service.sh 0 0 0755
-    set_perm $MODPATH/system/bin/rclone 0 0 0755
-    set_perm $MODPATH/syncd.sh 0 0 0755
-    set_perm $MODPATH/inotifywait 0 0 0555
-
-    if [[ ! -e /system/bin/fusermount ]]; then
-        cp -af $MODPATH/system/bin/fusermount /system/bin/fusermount
-        set_perm /system/bin/fusermount 0 0 0755
-    fi
-
-    case $ARCH32 in
-        arm)
-            cp -af $MODPATH/system/lib/libandroid-support.so /system/lib/libandroid-support.so
-            set_perm /system/lib/libandroid-support.so 0 0 0755
-            if [ "$IS64BIT" = true ]; then
-                cp -af $MODPATH/system/lib64/libandroid-support.so /system/lib64/libandroid-support.so
-                set_perm /system/lib64/libandroid-support.so 0 0 0755
-            fi
-            ;;
-        x86)
-            cp -af $MODPATH/system/lib/libandroid-support.so /system/lib/libandroid-support.so
-            set_perm /system/lib/libandroid-support.so 0 0 0755
-            if [ "$IS64BIT" = true ]; then
-                cp -af $MODPATH/system/lib64/libandroid-support.so $MODPATH/system/lib64/libandroid-support.so
-                set_perm /system/lib64/libandroid-support.so 0 0 0755
-            fi
-            ;;
-    esac
-
-    if [[ -e /sdcard/.rclone/rclone.conf ]]; then
-        export INTERACTIVE=1
-        ui_print "+ Attempting to mount your [Remotes]:"
-        ui_print "+ please wait..."
-        ui_print ""
-        MODDIR=$MODPATH $MODPATH/system/bin/rclone remount
-    else
-        ui_print "'/sdcard/.rclone/rclone.conf' not found!"
-        ui_print
-        ui_print "Additional setup required..."
-        ui_print "------------------------------------"
-        ui_print " Instructions:                      "
-        ui_print " - Open Terminal                    "
-        ui_print " - Type 'su' & tap enter            "
-        ui_print " - Type 'rclone config' & tap enter "
-        ui_print " - Follow on screen options.        "
-        ui_print "------------------------------------"
-    fi
-}
-
-##########################################################################################
-# MMT Extended Logic - Don't modify anything after this
-##########################################################################################
-
+# shellcheck disable=SC2034
 SKIPUNZIP=1
-unzip -qjo "$ZIPFILE" 'common/functions.sh' -d $TMPDIR >&2
-. $TMPDIR/functions.sh
+extract() {
+    zip=$1
+    file=$2
+    dir=$3
+    junk_paths=$4
+    [ -z "$junk_paths" ] && junk_paths=false
+    opts="-o"
+    [ $junk_paths = true ] && opts="-oj"
+
+    file_path=""
+    if [ $junk_paths = true ]; then
+        file_path="$dir/$(basename "$file")"
+    else
+        file_path="$dir/$file"
+    fi
+    unzip $opts "$zip" "$file" -d "$dir" >&2
+    [ -f "$file_path" ] || abort "$file not exists"
+
+    ui_print "- Unzip $file" >&1
+}
+extract "$ZIPFILE" 'module.prop' "$MODPATH"
+extract "$ZIPFILE" 'service.sh' "$MODPATH"
+extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
+extract "$ZIPFILE" "syncd.sh" "$MODPATH"
+mkdir -p "$MODPATH/system/bin"
+extract "$ZIPFILE" "common/binary/$ARCH/inotifywait" "$MODPATH/system/bin" true
+extract "$ZIPFILE" "system/bin/rclone" "$MODPATH"
+extract "$ZIPFILE" "common/binary/$ARCH/rclone" "$MODPATH" true
+
+if [ "$IS64BIT" = true ]; then
+    mkdir -p "$MODPATH/system/lib64"
+    extract "$ZIPFILE" "common/lib/$ARCH/libandroid-support.so" "$MODPATH/system/lib64" true
+else
+    mkdir -p "$MODPATH/system/lib"
+    extract "$ZIPFILE" "common/lib/$ARCH/libandroid-support.so" "$MODPATH/system/lib" true
+fi
+
+extract "$ZIPFILE" "common/binary/$ARCH/fusermount" "$MODPATH/system/bin" true
+
+set_perm_recursive "$MODPATH" 0 0 0755 0644
+set_perm "$MODPATH"/rclone 0 0 0755
+[ -d "$MODPATH/system/bin" ] && set_perm_recursive "$MODPATH/system/bin" 0 0 0755 0755
+[ -d "$MODPATH/system/lib" ] && set_perm_recursive "$MODPATH/system/lib" 0 0 0755 0644 u:object_r:system_lib_file:s0
+[ -d "$MODPATH/system/lib64" ] && set_perm_recursive "$MODPATH/system/lib64" 0 0 0755 0644 u:object_r:system_lib_file:s0
+
+if [ -f "/sdcard/.rclone/rclone.conf" ]; then
+    export INTERACTIVE=1
+    ui_print "+ Attempting to mount your [Remotes]:"
+    ui_print "+ please wait..."
+    ui_print ""
+    MODDIR=$MODPATH
+    # $MODPATH/system/bin/rclone remount
+else
+    ui_print "'/sdcard/.rclone/rclone.conf' not found!"
+    ui_print
+    ui_print "Additional setup required..."
+    ui_print "------------------------------------"
+    ui_print " Instructions:                      "
+    ui_print " - Open Terminal                    "
+    ui_print " - Type 'su' & tap enter            "
+    ui_print " - Type 'rclone config' & tap enter "
+    ui_print " - Follow on screen options.        "
+    ui_print "------------------------------------"
+fi
