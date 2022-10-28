@@ -40,6 +40,8 @@ fi
 extract "$ZIPFILE" "common/binary/$ARCH/fusermount" "$MODPATH/system/bin" true
 
 set_perm_recursive "$MODPATH" 0 0 0755 0644
+set_perm "$MODPATH"/service.sh 0 0 0755
+set_perm "$MODPATH"/syncd.sh 0 0 0755
 set_perm "$MODPATH"/rclone 0 0 0755
 [ -d "$MODPATH/system/bin" ] && set_perm_recursive "$MODPATH/system/bin" 0 0 0755 0755
 [ -d "$MODPATH/system/lib" ] && set_perm_recursive "$MODPATH/system/lib" 0 0 0755 0644 u:object_r:system_lib_file:s0
