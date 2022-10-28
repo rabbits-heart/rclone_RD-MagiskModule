@@ -2,11 +2,13 @@
 
 # Module directory, DO NOT TOUCH THIS!
 MODDIR=${MODDIR:-$(magisk --path)/.magisk/modules/rclone.mount}
-echo "Using 'rclone' binary: ${MODDIR}/rclone"
+RCLONE_BIN=${MODDIR}/rclone
+echo "Using 'rclone' binary: ${RCLONE_BIN}"
 
 USER_CONFDIR=/sdcard/.rclone
 USER_CONF=${USER_CONFDIR}/rclone.conf
-CONFIGFILE=${MODDIR}/.config/rclone/rclone.conf
+export XDG_CONFIG_HOME=/data/local/tmp/
+CONFIGFILE="$XDG_CONFIG_HOME"/rclone/rclone.conf
 LOGFILE=${USER_CONFDIR}/rclone.log
 LOGLEVEL=NOTICE
 DATA_MEDIA=/data/media/0
@@ -47,14 +49,14 @@ config () {
     if [[ ! -d ${USER_CONFDIR} ]]; then
         mkdir ${USER_CONFDIR}
     fi
-    if [[ -e ${USER_CONFDIR}/rclone.conf ]]; then
-        cp ${USER_CONFDIR}/rclone.conf ${MODDIR}/.config/rclone/rclone.conf
+    if [[ -e ${USER_CONF} ]]; then
+        cp ${USER_CONF} ${CONFIGFILE}
     fi
-    ${MODDIR}/rclone config && cp ${MODDIR}/.config/rclone/rclone.conf ${USER_CONFDIR}/rclone.conf && echo && remount
+    ${RCLONE_BIN} config && cp ${CONFIGFILE} ${USER_CONF} && echo && remount
 }
 
 help () {
-    $MODDIR/rclone help
+    $RCLONE_BIN help
     echo
     echo 'Wrapper Commands:'
     echo '  disable         Disable a specified remote which exist in rclone.conf.'
@@ -74,7 +76,7 @@ unmount () {
     sleep 1
     umount -lf ${CLOUDROOTMOUNTPOINT}/* >> /dev/null 2>&1
     umount -lf ${CLOUDROOTMOUNTPOINT} >> /dev/null 2>&1
-    ${MODDIR}/rclone purge ${CLOUDROOTMOUNTPOINT} >> /dev/null 2>&1
+    ${RCLONE_BIN} purge ${CLOUDROOTMOUNTPOINT} >> /dev/null 2>&1
 }
 
 sd_unbind_func () {
@@ -97,7 +99,7 @@ sd_unbind_func () {
 }
 
 sd_unbind () {
-    ${MODDIR}/rclone listremotes --config ${CONFIGFILE} | cut -f1 -d: | while read remote; do
+    ${RCLONE_BIN} listremotes --config ${CONFIGFILE} | cut -f1 -d: | while read remote; do
         echo
         custom_params
         sd_unbind_func
@@ -126,5 +128,5 @@ elif [[ ${1} = --help ]]; then
 elif [[ -z ${1} ]]; then
     help
 else
-    ${MODDIR}/rclone $*
+    ${RCLONE_BIN} $*
 fi
