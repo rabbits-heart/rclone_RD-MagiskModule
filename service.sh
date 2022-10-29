@@ -69,6 +69,8 @@ gethostip() {
     ip=$(ip route list match 0 table all scope global | cut -F3)
     if [ -z "$ip" ]; then
         return 1
+    else
+        echo "$ip"
     fi
 }
 
@@ -422,19 +424,19 @@ LD_LIBRARY_PATH=${MODDIR} ${MODDIR}/rclone listremotes --config ${CONFIGFILE} | 
 echo
 
 if [[ ${HTTP} = 1 ]]; then
-    if $(${MODDIR}/rclone serve http ${CLOUDROOTMOUNTPOINT} --addr ${HTTP_ADDR} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
+    if (${MODDIR}/rclone serve http ${CLOUDROOTMOUNTPOINT} --addr ${HTTP_ADDR} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
         echo "HTTP Server: http://${HTTP_ADDR}"
     fi
 fi
 
 if [[ ${FTP} = 1 ]]; then
-    if $(${MODDIR}/rclone serve ftp ${CLOUDROOTMOUNTPOINT} --addr ${FTP_ADDR} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
+    if (${MODDIR}/rclone serve ftp ${CLOUDROOTMOUNTPOINT} --addr ${FTP_ADDR} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
         echo "FTP Server: ftp://${FTP_ADDR}"
     fi
 fi
 
 if [[ ${SFTP} = 1 ]] && [[ ! -z ${SFTP_USER} ]] && [[ ! -z ${SFTP_PASS} ]]; then
-    if $(${MODDIR}/rclone serve sftp ${CLOUDROOTMOUNTPOINT} --addr ${SFTP_ADDR} --user ${SFTP_USER} --pass ${SFTP_PASS} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
+    if (${MODDIR}/rclone serve sftp ${CLOUDROOTMOUNTPOINT} --addr ${SFTP_ADDR} --user ${SFTP_USER} --pass ${SFTP_PASS} --no-checksum --no-modtime --read-only >>/dev/null 2>&1 &) then
         echo "SFTP Server: sftp://${SFTP_ADDR}"
     fi
 fi
