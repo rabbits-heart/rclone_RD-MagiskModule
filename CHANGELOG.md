@@ -1,5 +1,10 @@
 ## Changelog (forked)
 
+### v1.20
+* Updated `rclone` to 1.60.0
+* Updated `inotifywait` to 3.22.6.0
+* Fix `rclone config` on Windows Subsystem for Android
+* Fix bind-mount to `/sdcard` on Windows Subsystem for Android
 ### v1.14 (binary updates)
 * Updated rclone to 1.56.0 for all supported architectures.
 * Updated README.md to point to Termux packages source.
