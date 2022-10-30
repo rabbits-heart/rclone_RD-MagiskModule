@@ -10,3 +10,4 @@
 *.dex binary
 *.jar binary
 *.png binary
+common/binary/** binary
