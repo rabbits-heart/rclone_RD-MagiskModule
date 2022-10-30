@@ -132,8 +132,8 @@ sd_unbind() {
         su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
         UNBINDPOINT=${BINDPOINT_W}/${remote}
         su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
-        UNBINDPOINT=${SD_BINDPOINT}/${remote}
-        su -M -c umount -lf ${UNBINDPOINT} >>/dev/null 2>&1
+        UNBINDPOINT="$SD_BINDPOINT/$remote"
+        su -M -c umount -lf "$UNBINDPOINT" >>/dev/null 2>&1
     else
         USER_BINDPOINT=${SDBINDPOINT}
         UNBINDPOINT=${RUNTIME_D}/emulated/${PROFILE}/${USER_BINDPOINT}
@@ -167,10 +167,10 @@ sd_binder() {
                 su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
             fi
 
-            BINDPOINT=$SD_BINDPOINT/${remote}
+            BINDPOINT="$SD_BINDPOINT/$remote"
 
-            if ! mount | grep -q ${BINDPOINT}; then
-                su -M -c mount --bind ${CLOUDROOTMOUNTPOINT}/${remote} ${BINDPOINT} >>/dev/null 2>&1
+            if ! mount | grep -q "$BINDPOINT"; then
+                su -M -c mount --bind "$CLOUDROOTMOUNTPOINT/$remote" "$BINDPOINT" >>/dev/null 2>&1
             fi
 
             echo "[$remote] available at: -> [/sdcard/Cloud/${remote}] BINDPOINT=$BINDPOINT"
@@ -335,18 +335,18 @@ fi
 
 global_params
 
-if [[ ! -d ${CLOUDROOTMOUNTPOINT} ]]; then
-    mkdir -p ${CLOUDROOTMOUNTPOINT}
-    chown root:sdcard_rw ${CLOUDROOTMOUNTPOINT}
-    touch ${CLOUDROOTMOUNTPOINT}/.nomedia
-    chown root:sdcard_rw ${CLOUDROOTMOUNTPOINT}/.nomedia
-    chmod 0775 ${CLOUDROOTMOUNTPOINT}/.nomedia
+if [ ! -d "$CLOUDROOTMOUNTPOINT" ]; then
+    mkdir -p "$CLOUDROOTMOUNTPOINT"
+    chown root:sdcard_rw "$CLOUDROOTMOUNTPOINT"
+    touch "$CLOUDROOTMOUNTPOINT"/.nomedia
+    chown root:sdcard_rw "$CLOUDROOTMOUNTPOINT"/.nomedia
+    chmod 0775 "$CLOUDROOTMOUNTPOINT"/.nomedia
 fi
 
-if [[ ! -e ${CLOUDROOTMOUNTPOINT}/.nomedia ]]; then
-    touch ${CLOUDROOTMOUNTPOINT}/.nomedia
-    chown root:sdcard_rw ${CLOUDROOTMOUNTPOINT}/.nomedia
-    chmod 0644 ${CLOUDROOTMOUNTPOINT}/.nomedia
+if [ ! -f "$CLOUDROOTMOUNTPOINT/.nomedia" ]; then
+    touch "$CLOUDROOTMOUNTPOINT"/.nomedia
+    chown root:sdcard_rw "$CLOUDROOTMOUNTPOINT"/.nomedia
+    chmod 0644 "$CLOUDROOTMOUNTPOINT"/.nomedia
 fi
 
 if [[ ! -d ${CACHE} ]]; then
@@ -379,6 +379,16 @@ fi
 
 if [[ ! -L ${RUNTIME_D}/cloud ]]; then
     ln -sf ${CLOUDROOTMOUNTPOINT} ${RUNTIME_D}/cloud
+fi
+
+if [[ ! -L "$BINDPOINT_P" ]]; then
+    ln -sf "$CLOUDROOTMOUNTPOINT" "$BINDPOINT_P"
+fi
+
+if [ ! -f "$BINDPOINT_P/.nomedia" ]; then
+    touch "$BINDPOINT_P"/.nomedia
+    chown root:sdcard_rw "$BINDPOINT_P"/.nomedia
+    chmod 0644 "$BINDPOINT_P"/.nomedia
 fi
 
 if [[ -e ${USER_CONF} ]]; then

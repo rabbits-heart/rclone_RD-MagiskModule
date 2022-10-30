@@ -49,11 +49,9 @@ set_perm "$MODPATH"/rclone 0 0 0755
 
 if [ -f "/sdcard/.rclone/rclone.conf" ]; then
     export INTERACTIVE=1
-    ui_print "+ Attempting to mount your [Remotes]:"
-    ui_print "+ please wait..."
     ui_print ""
-    MODDIR=$MODPATH
-    # $MODPATH/system/bin/rclone remount
+    ui_print "- Please reboot to take effect"
+    ui_print ""
 else
     ui_print "'/sdcard/.rclone/rclone.conf' not found!"
     ui_print
