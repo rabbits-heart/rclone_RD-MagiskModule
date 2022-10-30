@@ -8,8 +8,8 @@ MODDIR=${0%/*}
 
 # MODULE VARS
 CLOUDROOTMOUNTPOINT=/mnt/cloud
-USER_CONFDIR=/sdcard/.rclone
-USER_CONF=${USER_CONFDIR}/rclone.conf
+USER_CONFDIR=/sdcard/Android/.rclone
+USER_CONF=$USER_CONFDIR/rclone.conf
 PROFILE=0
 DATA_MEDIA=/data/media
 RUNTIME_R=/mnt/runtime/read

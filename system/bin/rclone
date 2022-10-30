@@ -5,7 +5,7 @@ MODDIR=${MODDIR:-$(magisk --path)/.magisk/modules/rclone.mount}
 RCLONE_BIN=${MODDIR}/rclone
 echo "Using 'rclone' binary: ${RCLONE_BIN}"
 
-USER_CONFDIR=/sdcard/.rclone
+USER_CONFDIR=/sdcard/Android/.rclone
 USER_CONF=${USER_CONFDIR}/rclone.conf
 export XDG_CONFIG_HOME=/data/local/tmp/
 CONFIGFILE="$XDG_CONFIG_HOME"/rclone/rclone.conf

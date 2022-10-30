@@ -46,14 +46,21 @@ set_perm "$MODPATH"/rclone 0 0 0755
 [ -d "$MODPATH/system/bin" ] && set_perm_recursive "$MODPATH/system/bin" 0 0 0755 0755
 [ -d "$MODPATH/system/lib" ] && set_perm_recursive "$MODPATH/system/lib" 0 0 0755 0644 u:object_r:system_lib_file:s0
 [ -d "$MODPATH/system/lib64" ] && set_perm_recursive "$MODPATH/system/lib64" 0 0 0755 0644 u:object_r:system_lib_file:s0
-
-if [ -f "/sdcard/.rclone/rclone.conf" ]; then
-    export INTERACTIVE=1
-    ui_print ""
+USER_CONFDIR_OLD=/sdcard/.rclone
+USER_CONFDIR=/sdcard/Android/.rclone
+USER_CONF=$USER_CONFDIR/rclone.conf
+USER_CONF_OLD=$USER_CONFDIR_OLD/rclone.conf
+if [ -f "$USER_CONF" ]; then
+    ui_print
     ui_print "- Please reboot to take effect"
-    ui_print ""
+    ui_print
+elif [ -f "$USER_CONF_OLD" ] && [ ! -d "$USER_CONFDIR" ]; then
+    ui_print "- Migrating config file to $USER_CONFDIR"
+    mkdir -p "$USER_CONFDIR"
+    mv "$USER_CONFDIR_OLD"/* "$USER_CONFDIR"/
+    rm -rf "${USER_CONFDIR_OLD:?}"
 else
-    ui_print "'/sdcard/.rclone/rclone.conf' not found!"
+    ui_print "'$USER_CONF' not found!"
     ui_print
     ui_print "Additional setup required..."
     ui_print "------------------------------------"

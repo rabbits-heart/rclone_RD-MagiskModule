@@ -1,6 +1,6 @@
 MODDIR=${0%/*}
 
-CONFIGFILE=/sdcard/.rclone/rclone.conf
+CONFIGFILE=/sdcard/Android/.rclone/rclone.conf
 CLOUDROOTMOUNTPOINT=/mnt/cloud/
 
 "$MODDIR"/rclone listremotes --config ${CONFIGFILE}|cut -f1 -d: |
