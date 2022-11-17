@@ -1,6 +1,6 @@
 id=rclone.mount
 name=Cloud Storage Mounter (forked from rclone-mount)
-version=rclone: (v1.60.0) mod: (v1.21)
-versionCode=116
+version=rclone: (v1.60.1) mod: (v1.21)
+versionCode=117
 author=AvinashReddy3108 (OG: piyushgarg)
 description=Mount and sync your cloud storage on your device using 'rclone' & 'fusermount', providing virtually limitless storage expansion with support for dozens of cloud providers and extensive customization options.
