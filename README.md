@@ -32,6 +32,9 @@
   </h3>
 </div>
 
+### About
+- This is a trial magisk module to work with @itsToggle's Rclone fork for Real-Debrid. Just experimenting at the moment.
+
 ### Features
 - Support for arm, arm64, & x86 (64bit too)
 - Huge list of [supported cloud storage providers](https://rclone.org/#providers)
@@ -70,6 +73,7 @@ specify `CACHEMODE=off` in `/sdcard/.rclone/.ALIASNAME.param`
 Always check this document before updating to new releases as significant changes may occur.
 
 ## Credits
+- @itsToggle for their rclone fork (https://github.com/itsToggle/rclone_RD/releases) 
 - rclone devs
 - pmj_pedro[@xda](https://forum.xda-developers.com/showpost.php?p=78147335&postcount=1)
 - agnostic-apollo[@xda](https://forum.xda-developers.com/showpost.php?p=79929083&postcount=12)
