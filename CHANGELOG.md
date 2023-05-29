@@ -1,6 +1,9 @@
 ## Changelog (forked)
+### v1.30
+* Updated `rclone` to match itsToggle fork https://github.com/itsToggle/rclone_RD/releases
 
-### v1.20
+
+### v1.20 (Howard20 fork)
 * Updated `rclone` to 1.60.0
 * Updated `inotifywait` to 3.22.6.0
 * Fix `rclone config` on Windows Subsystem for Android
