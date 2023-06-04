@@ -1,6 +1,6 @@
-id=rclone.mount.rd
-name=RD_Cloud Storage Mounter (forked from rclone-mount-magisk)
-version=rclone: (v1.60.1) mod: (v1.30)
+id=rclone_RD-MagiskModule
+name=rclone_RD Magisk Module (forked from rclone-mount-magisk)
+version=rclone: (v1.60.1) mod: (v1.3.1)
 versionCode=117
 author=rabbits-heart (OG: Howard20181 and AvinashReddy3108 and piyushgarg)
-description=Mount and sync your cloud storage on your device using 'rclone' & 'fusermount', providing virtually limitless storage expansion with support for dozens of cloud providers and extensive customization options.
+description=RealDebrid-compatible magisk module to mount and sync your cloud storage on your device using 'rclone' & 'fusermount', providing virtually limitless storage expansion with support for dozens of cloud providers and extensive customization options.
