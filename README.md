@@ -2,13 +2,13 @@
 
 <div align="center">
   <!-- Version -->
-    <img src="https://img.shields.io/badge/Version-v1.14-blue.svg?longCache=true&style=for-the-badge"
+    <img src="https://img.shields.io/github/v/release/rabbits-heart/rclone-mount-magisk?color=teal&style=for-the-badge"
       alt="Version" />
-  <!-- Last Updated -->
-    <img src="https://img.shields.io/badge/Updated-April 22, 2021-green.svg?longCache=true&style=for-the-badge"
+  <!-- Release Date -->
+    <img src="https://img.shields.io/github/release-date/rabbits-heart/rclone-mount-magisk?color=pink&style=for-the-badge"
       alt="_time_stamp_" />
   <!-- Min Magisk -->
-    <img src="https://img.shields.io/badge/Magisk-20.0%2B-red.svg?longCache=true&style=for-the-badge"
+    <img src="https://img.shields.io/badge/Magisk-20.4%2B-magenta?&style=for-the-badge"
       alt="_time_stamp_" /></div>
 
 <div align="center">
@@ -33,7 +33,23 @@
 </div>
 
 ### About
-- This is a trial magisk module to work with @itsToggle's Rclone fork for Real-Debrid. Just experimenting at the moment.
+- This magisk module has been created to work with @itsToggle's Rclone fork for Real-Debrid. 
+All credit goes to @itsToggle, @Howard20181, @AvinashReddy3108 and @piyushgarg.
+
+# RClone_RD
+
+This RClone Fork contains a Real-Debrid implementation.
+Using this version, the entire RealDebrid /torrents directory can be served as a read-only virtual drive. 
+
+A potential use-case for this is serving the /torrent directory over plex, allowing you to build a media library truly unlimted in size. Im working on a project that allows plex to function the same way that Wako,Syncler and other streaming apps do. Check it out on https://github.com/itsToggle/plex_rd
+
+### Capabilities and Limitations:
+
+- Read/Write capabilities are limited to reading files and deleting them. 
+- This rclone fork will automatically sort your torrents into 3 subfolder: "shows", "movies" and "default". If a torrent couldnt be classified as a movie or a show, you can find it in the "default" folder.
+- There are no server-side traffic or storage limitations.
+- This rclone fork will automatically re-activate direct links when they expire after 1 week.
+- There is a server-side connection limit, which I believe is 16 parallel connections.
 
 ### Features
 - Support for arm, arm64, & x86 (64bit too)
@@ -73,8 +89,9 @@ specify `CACHEMODE=off` in `/sdcard/.rclone/.ALIASNAME.param`
 Always check this document before updating to new releases as significant changes may occur.
 
 ## Credits
-- @itsToggle for their rclone fork (https://github.com/itsToggle/rclone_RD/releases) 
-- rclone devs
+- @itsToggle for their rclone fork (https://github.com/itsToggle/rclone_RD/) 
+- @Howard20181, @AvinashReddy3108 and @piyushgarg for their original magisk modules
+rclone devs
 - pmj_pedro[@xda](https://forum.xda-developers.com/showpost.php?p=78147335&postcount=1)
 - agnostic-apollo[@xda](https://forum.xda-developers.com/showpost.php?p=79929083&postcount=12)
 - Termux for building and hosting binaries for [rclone](https://packages.termux.org/apt/termux-main/pool/main/r/rclone), [fusermount](https://grimler.se/termux-root-packages-24/pool/stable/libf/libfuse2/), [inotifywait](https://packages.termux.org/apt/termux-main/pool/main/i/inotify-tools), [libandroid-support.so](https://packages.termux.org/apt/termux-main/pool/main/liba/libandroid-support).
