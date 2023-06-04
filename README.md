@@ -2,10 +2,10 @@
 
 <div align="center">
   <!-- Version -->
-    <img src="https://img.shields.io/github/v/release/rabbits-heart/rclone-mount-magisk?color=teal&style=for-the-badge"
+    <img src="https://img.shields.io/github/v/release/rabbits-heart/rclone_RD-MagiskModule?color=teal&style=for-the-badge"
       alt="Version" />
   <!-- Release Date -->
-    <img src="https://img.shields.io/github/release-date/rabbits-heart/rclone-mount-magisk?color=pink&style=for-the-badge"
+    <img src="https://img.shields.io/github/release-date/rabbits-heart/rclone_RD-MagiskModule?color=pink&style=for-the-badge"
       alt="_time_stamp_" />
   <!-- Min Magisk -->
     <img src="https://img.shields.io/badge/Magisk-20.4%2B-magenta?&style=for-the-badge"
@@ -26,7 +26,7 @@
       Original Module Repository
     </a>
     <span> | </span>
-    <a href="https://github.com/rabbits-heart/rclone-mount-magisk/issues">
+    <a href="https://github.com/rabbits-heart/rclone_RD-MagiskModule/issues">
       Issues
     </a>
   </h3>
