@@ -26,15 +26,16 @@
       Original Module Repository
     </a>
     <span> | </span>
-    <a href="https://github.com/AvinashReddy3108/rclone-mount-magisk/issues">
+    <a href="https://github.com/rabbits-heart/rclone-mount-magisk/issues">
       Issues
     </a>
   </h3>
 </div>
 
 ### About
-- This magisk module has been created to work with [@itsToggle]'s Rclone fork for Real-Debrid. 
-All credit goes to [@itsToggle], [@Howard20181], [@AvinashReddy3108] and [@piyushgarg].
+- This magisk module has been created to work with [@itsToggle](https://github.com/itsToggle)'s [Rclone_RD](https://github.com/itsToggle/rclone_RD/) which implements Real-Debrid to rclone. 
+
+- All credit goes to [@itsToggle](https://github.com/itsToggle), [@Howard20181](https://github.com/Howard20181), [@AvinashReddy3108](https://github.com/AvinashReddy3108) and [@piyushgarg](https://github.com/piyushgarg).
 
 # RClone_RD
 
@@ -91,9 +92,9 @@ specify `CACHEMODE=off` in `/sdcard/.rclone/.ALIASNAME.param`
 Always check this document before updating to new releases as significant changes may occur.
 
 ## Credits
-- @itsToggle for their rclone fork (https://github.com/itsToggle/rclone_RD/) 
-- @Howard20181, @AvinashReddy3108 and @piyushgarg for their original magisk modules
-rclone devs
+- [@itsToggle](https://github.com/itsToggle) for [rclone_RD](https://github.com/itsToggle/rclone_RD/) 
+- [@Howard20181](https://github.com/Howard20181), [@AvinashReddy3108](https://github.com/AvinashReddy3108) and [@piyushgarg](https://github.com/piyushgarg) for their original magisk modules
+- rclone devs
 - pmj_pedro[@xda](https://forum.xda-developers.com/showpost.php?p=78147335&postcount=1)
 - agnostic-apollo[@xda](https://forum.xda-developers.com/showpost.php?p=79929083&postcount=12)
 - Termux for building and hosting binaries for [rclone](https://packages.termux.org/apt/termux-main/pool/main/r/rclone), [fusermount](https://grimler.se/termux-root-packages-24/pool/stable/libf/libfuse2/), [inotifywait](https://packages.termux.org/apt/termux-main/pool/main/i/inotify-tools), [libandroid-support.so](https://packages.termux.org/apt/termux-main/pool/main/liba/libandroid-support).
