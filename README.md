@@ -33,8 +33,8 @@
 </div>
 
 ### About
-- This magisk module has been created to work with @itsToggle's Rclone fork for Real-Debrid. 
-All credit goes to @itsToggle, @Howard20181, @AvinashReddy3108 and @piyushgarg.
+- This magisk module has been created to work with [@itsToggle]'s Rclone fork for Real-Debrid. 
+All credit goes to [@itsToggle], [@Howard20181], [@AvinashReddy3108] and [@piyushgarg].
 
 # RClone_RD
 
@@ -50,6 +50,8 @@ A potential use-case for this is serving the /torrent directory over plex, allow
 - There are no server-side traffic or storage limitations.
 - This rclone fork will automatically re-activate direct links when they expire after 1 week.
 - There is a server-side connection limit, which I believe is 16 parallel connections.
+
+# Rclone Magisk Module
 
 ### Features
 - Support for arm, arm64, & x86 (64bit too)
