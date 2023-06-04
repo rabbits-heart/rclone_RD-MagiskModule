@@ -1,4 +1,4 @@
-<h1 align="center">Cloud Storage Mounter for Magisk (prev: rclone-mount)</h1>
+<h1 align="center">RealDebrid-Compatible Cloud Storage Mounter for Magisk (prev: rclone-mount)</h1>
 
 <div align="center">
   <!-- Version -->
