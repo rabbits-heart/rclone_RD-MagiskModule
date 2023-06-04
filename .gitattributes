@@ -9,4 +9,7 @@
 *.jar binary
 *.png binary
 common/binary/** binary
-
+/common/binary/x86/rclone filter=lfs diff=lfs merge=lfs -text
+/common/binary/x64/rclone filter=lfs diff=lfs merge=lfs -text
+/common/binary/arm/rclone filter=lfs diff=lfs merge=lfs -text
+/common/binary/arm64/rclone filter=lfs diff=lfs merge=lfs -text
